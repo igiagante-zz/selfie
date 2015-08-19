@@ -3,6 +3,7 @@ package com.peryisa.dailyselfie;
 import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Set;
 
 import model.Item;
 /**
@@ -68,7 +70,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
                 @Override
                 public void onClick(View v) {
                     if (checkBox.isChecked()) {
-
+                        onItemSelectedListener.checkBoxSelected();
+                    }else{
+                        onItemSelectedListener.unCheckBoxSelected();
                     }
                 }
             });
@@ -77,6 +81,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
 
     public interface OnItemSelectedListener {
         void itemSelected(Item item);
+        void checkBoxSelected();
+        void unCheckBoxSelected();
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
@@ -125,19 +131,28 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
         notifyDataSetChanged();
     }
 
-    public void removeAllViews() {
+    public void removeAllItems(Set<Long> itemsId) {
 
-        boolean alDelete = false;
+        ArrayList<Long> tempList = new ArrayList<>();
+        tempList.addAll(itemsId);
 
         for(int i = 0; i < items.size(); i++){
-            File file = new File(items.get(i).getPath());
-            if(file.delete() && i == items.size() - 1){
-                alDelete = true;
+
+            for(int j = 0; j < tempList.size(); j++){
+
+                if(items.get(i).getId().equals(tempList.get(j))){
+                    File file = new File(items.get(i).getPath());
+                    if(file.delete()){
+                        remove(i);
+                    }else{
+                        Log.e("Delete File", "File " + file.getPath() + "could not be deleted");
+                    }
+                }
             }
         }
-        if(alDelete){
-            items.clear();
-            this.notifyDataSetChanged();
-        }
+    }
+
+    public ArrayList<Item> getItems() {
+        return items;
     }
 }

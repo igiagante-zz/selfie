@@ -9,11 +9,13 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +26,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Random;
 
 import model.Item;
 
@@ -32,11 +36,11 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int ITEM_ID_DELETE = 1;
-    static final int height = 80;
-    static final int width = 80;
+    static final int height = 100;
+    static final int width = 100;
 
     String mCurrentPhotoPath;
-    private boolean selectAllButtonPressed = false;
+    private HashSet<Long> itemsSelected = new HashSet<>();
 
     private RecyclerView mRecyclerView;
     private MyAdapter mAdapter;
@@ -50,6 +54,10 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(savedInstanceState != null){
+            mCurrentPhotoPath = savedInstanceState.getString("mCurrentPhotoPath");
+        }
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -91,16 +99,23 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     }
 
     @Override
+    public void checkBoxSelected() {
+        if(checkIfOneCheckboxIsStillChecked()){
+            addDeleteIcon();
+        }
+    }
+
+    @Override
+    public void unCheckBoxSelected() {
+        if(checkIfNoneCheckboxIsStillChecked()){
+            removeDeleteIcon();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
         this.menu = menu;
-
-        if(selectAllButtonPressed){
-            MenuItem deleteIcon = this.menu.add(0, ITEM_ID_DELETE, 0, "Delete");
-            deleteIcon.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            deleteIcon.setShowAsAction(MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-            deleteIcon.setIcon(R.drawable.delete);
-        }
 
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -117,36 +132,43 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
 
         if(item.getItemId() == R.id.select_all){
 
-            if(!selectAllButtonPressed){
-                selectAll();
-                selectAllButtonPressed = true;
+            setDeleteIcon();
 
+            if(!checkIfAllCheckboxAreChecked()){
+                selectAll();
             }else{
                 unSelectAll();
-                selectAllButtonPressed = false;
             }
-            setDeleteIcon();
 
             return true;
         }
 
         if(item.getItemId() == ITEM_ID_DELETE){
-            mAdapter.removeAllViews();
-            this.menu.removeItem(ITEM_ID_DELETE);
+            mAdapter.removeAllItems(itemsSelected);
+            removeDeleteIcon();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
     private void setDeleteIcon(){
-
-        if(selectAllButtonPressed){
-            MenuItem deleteIcon = this.menu.add(0,1,0,"Delete");
-            deleteIcon.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-            deleteIcon.setIcon(R.drawable.delete);
-        }else{
-            this.menu.removeItem(ITEM_ID_DELETE);
+        if(checkIfNoneCheckboxIsStillChecked()){
+            addDeleteIcon();
         }
+        if(checkIfAllCheckboxAreChecked()){
+            removeDeleteIcon();
+        }
+    }
+
+    private void addDeleteIcon(){
+        MenuItem deleteIcon = this.menu.add(0, ITEM_ID_DELETE, 0, "Delete");
+        deleteIcon.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        deleteIcon.setIcon(R.drawable.delete);
+    }
+
+    private void removeDeleteIcon() {
+        this.menu.removeItem(ITEM_ID_DELETE);
     }
 
     private void selectAll(){
@@ -189,8 +211,14 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            saveThumbNail();
+            createThumbNail();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putString("mCurrentPhotoPath", mCurrentPhotoPath);
     }
 
     private File createImageFile() throws IOException {
@@ -209,12 +237,19 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
         return image;
     }
 
-    private void saveThumbNail(){
+    private void createThumbNail(){
         File photoFile = new File(mCurrentPhotoPath);
-        Item item = new Item();
-        item.setName(photoFile.getName());
-        item.setImage(getScaledBitmap(mCurrentPhotoPath));
-        mAdapter.add(item);
+        if(photoFile != null){
+            Item item = new Item();
+            item.setId(new Random(31).nextLong());
+            item.setName(photoFile.getName());
+            item.setImage(getScaledBitmap(mCurrentPhotoPath));
+            item.setPath(photoFile.getAbsolutePath());
+            mAdapter.add(item);
+        }else{
+            Log.e("Scaled Image", "An error has occured trying to create an thumbnail");
+        }
+
     }
 
     private Bitmap getScaledBitmap(String path){
@@ -228,12 +263,14 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     private void initListImages(){
 
         File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+
         for(File file : directory.listFiles()){
 
             Bitmap scaledImage = getScaledBitmap(file.getAbsolutePath());
 
             if(scaledImage != null){
                 Item item = new Item();
+                item.setId(new Random().nextLong());
                 item.setName(file.getName());
                 item.setImage(scaledImage);
                 item.setPath(file.getAbsolutePath());
@@ -242,4 +279,30 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
         }
     }
 
+    private boolean checkIfOneCheckboxIsStillChecked(){
+        return countOfNumberOfCheckboxSelected() > 0 && countOfNumberOfCheckboxSelected() < 2;
+    }
+
+    private boolean checkIfNoneCheckboxIsStillChecked(){
+        return countOfNumberOfCheckboxSelected() == 0;
+    }
+
+    private boolean checkIfAllCheckboxAreChecked(){
+        return countOfNumberOfCheckboxSelected() == mRecyclerView.getChildCount();
+    }
+
+    private int countOfNumberOfCheckboxSelected(){
+        int count = 0;
+        for(int i = 0; i < mRecyclerView.getChildCount(); i++){
+            View view = mRecyclerView.getChildAt(i);
+            CheckBox checkBox = (CheckBox)view.findViewById(R.id.select_picture);
+            if(checkBox.isChecked()){
+                count++;
+                MyAdapter myAdapter = (MyAdapter) mRecyclerView.getAdapter();
+                Long itemId = myAdapter.getItems().get(i).getId();
+                itemsSelected.add(itemId);
+            }
+        }
+        return count;
+    }
 }
