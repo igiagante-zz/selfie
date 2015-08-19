@@ -36,8 +36,8 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int ITEM_ID_DELETE = 1;
-    static final int height = 100;
-    static final int width = 100;
+    static final int height = 150;
+    static final int width = 150;
 
     String mCurrentPhotoPath;
     private HashSet<Long> itemsSelected = new HashSet<>();
@@ -216,15 +216,19 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putString("mCurrentPhotoPath", mCurrentPhotoPath);
     }
 
     private File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+
+//        Random random = new Random();
+//        String imageFileName = new String (new char[random.nextInt(8)+3]);
+
+        String timeStamp = new SimpleDateFormat("MMdd").format(new Date());
+        String imageFileName = timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */

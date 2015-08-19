@@ -41,7 +41,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
             cardView = (CardView) v.findViewById(R.id.card_view);
             imageView = (ImageView) v.findViewById(R.id.thumbnail);
             txtTittle = (TextView) v.findViewById(R.id.title);
-            txtDate = (TextView) v.findViewById(R.id.date);
             checkBox = (CheckBox) v.findViewById(R.id.select_picture);
             deleteButton = (ImageView) v.findViewById(R.id.delete_image);
             deleteButton.setClickable(true);
@@ -107,7 +106,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
         itemViewHolder.id = items.get(position).getId();
         itemViewHolder.imageView.setImageBitmap(items.get(position).getImage());
         itemViewHolder.txtTittle.setText(items.get(position).getName());
-        itemViewHolder.txtDate.setText(items.get(position).getPath());
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -140,7 +138,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
 
             for(int j = 0; j < tempList.size(); j++){
 
-                if(items.get(i).getId().equals(tempList.get(j))){
+                boolean check = items.get(i) != null
+                        && tempList.get(j) != null
+                        && items.get(i).getId().equals(tempList.get(j));
+
+                if(check){
                     File file = new File(items.get(i).getPath());
                     if(file.delete()){
                         remove(i);
