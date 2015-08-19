@@ -11,6 +11,7 @@ public class Item {
     private String name;
     private String path;
     private Bitmap image;
+    private boolean selected;
 
     public Long getId() {
         return id;
@@ -42,5 +43,13 @@ public class Item {
 
     public void setImage(Bitmap image) {
         this.image = image;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 }

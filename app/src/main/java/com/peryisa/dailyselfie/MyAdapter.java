@@ -6,9 +6,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import model.Item;
@@ -29,6 +31,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
         public ImageView imageView;
         public TextView txtTittle;
         public TextView txtDate;
+        public CheckBox checkBox;
+        public ImageView deleteButton;
 
         public ItemViewHolder(View v) {
             super(v);
@@ -36,11 +40,36 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
             imageView = (ImageView) v.findViewById(R.id.thumbnail);
             txtTittle = (TextView) v.findViewById(R.id.title);
             txtDate = (TextView) v.findViewById(R.id.date);
+            checkBox = (CheckBox) v.findViewById(R.id.select_picture);
+            deleteButton = (ImageView) v.findViewById(R.id.delete_image);
+            deleteButton.setClickable(true);
+
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    Item item = items.get(position);
+                    File file = new File(item.getPath());
+                    if(file.delete()){
+                        remove(position);
+                    }
+                }
+            });
+
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Item item = items.get(getAdapterPosition());
                     onItemSelectedListener.itemSelected(item);
+                }
+            });
+
+            checkBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (checkBox.isChecked()) {
+
+                    }
                 }
             });
         }
@@ -91,12 +120,24 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
         notifyDataSetChanged();
     }
 
-    public ArrayList<Item> getList() {
-        return items;
+    public void remove(int position) {
+        items.remove(position);
+        notifyDataSetChanged();
     }
 
     public void removeAllViews() {
-        items.clear();
-        this.notifyDataSetChanged();
+
+        boolean alDelete = false;
+
+        for(int i = 0; i < items.size(); i++){
+            File file = new File(items.get(i).getPath());
+            if(file.delete() && i == items.size() - 1){
+                alDelete = true;
+            }
+        }
+        if(alDelete){
+            items.clear();
+            this.notifyDataSetChanged();
+        }
     }
 }

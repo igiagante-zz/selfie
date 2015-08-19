@@ -10,6 +10,12 @@
         android:orderInCategory="100"
         app:showAsAction="ifRoom" />
 
+    <item android:id="@+id/select_all"
+        android:icon="@drawable/check"
+        android:title="@string/camera"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom" />
+
     <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings"/>

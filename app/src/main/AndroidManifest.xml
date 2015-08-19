@@ -27,6 +27,13 @@
             android:label="@string/image_full_size" >
         </activity>
 
+        <receiver android:name=".DailySelfieReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED">
+                </action>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
