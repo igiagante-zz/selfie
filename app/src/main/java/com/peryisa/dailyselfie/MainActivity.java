@@ -23,9 +23,11 @@ import android.widget.CheckBox;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Random;
 
 import model.Item;
@@ -47,16 +49,12 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     private Menu menu;
 
     private PendingIntent pendingIntent;
-    private static final long REPEAT_TIME = 1000 * 20;
+    private static final long REPEAT_TIME = 1000 * 30;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if(savedInstanceState != null){
-            mCurrentPhotoPath = savedInstanceState.getString("mCurrentPhotoPath");
-        }
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -83,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.SECOND, 10);
+        cal.add(Calendar.SECOND, 30);
 
         // Fetch every 30 seconds
         // InexactRepeating allows Android to optimize the energy consumption
@@ -109,6 +107,11 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
         if(checkIfNoneCheckboxIsStillChecked()){
             removeDeleteIcon();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -197,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                // Error occurred while creating the File
+                Log.e("Create File", "Picture file could not be create");
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
@@ -214,16 +217,11 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("mCurrentPhotoPath", mCurrentPhotoPath);
-    }
-
     private File createImageFile() throws IOException {
 
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("MMdd").format(new Date());
+        SimpleDateFormat sdf = new SimpleDateFormat("MMdd", Locale.US);
+        String timeStamp = sdf.format(new Date());
         String imageFileName = timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(

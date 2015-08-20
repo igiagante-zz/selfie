@@ -1,11 +1,13 @@
 package model;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by igiagante on 18/8/15.
  */
-public class Item {
+public class Item implements Parcelable{
 
     private Long id;
     private String name;
@@ -53,6 +55,8 @@ public class Item {
         this.selected = selected;
     }
 
+    public Item(){}
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -72,5 +76,35 @@ public class Item {
         result = 31 * result + name.hashCode();
         result = 31 * result + path.hashCode();
         return result;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeString(name);
+        dest.writeString(path);
+        dest.writeInt(selected ? 1 : 0);
+    }
+
+    public static final Parcelable.Creator<Item> CREATOR = new Parcelable.Creator<Item>() {
+        public Item createFromParcel(Parcel in) {
+            return new Item(in);
+        }
+
+        public Item[] newArray(int size) {
+            return new Item[size];
+        }
+    };
+
+    private Item(Parcel in) {
+        id = in.readLong();
+        name = in.readString();
+        path = in.readString();
+        selected = in.readInt() == 1;
     }
 }

@@ -1,6 +1,7 @@
 package com.peryisa.dailyselfie;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -54,6 +55,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
                     if (file.delete()) {
                         remove(position);
                     }
+                    //onItemSelectedListener.deleteButtonPressed();
                 }
             });
 
@@ -65,24 +67,33 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
                 }
             });
 
-            checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (checkBox.isChecked()) {
-                        onItemSelectedListener.checkBoxSelected();
-                    } else {
-                        onItemSelectedListener.unCheckBoxSelected();
+            if(checkBox != null && isPortrait()){
+
+                checkBox.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+
+                        Item item = items.get(getAdapterPosition());
+
+                        if (checkBox.isChecked()) {
+                            item.setSelected(true);
+                            deleteButton.setClickable(false);
+                            onItemSelectedListener.checkBoxSelected();
+                        } else {
+                            item.setSelected(false);
+                            deleteButton.setClickable(true);
+                            onItemSelectedListener.unCheckBoxSelected();
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
     public interface OnItemSelectedListener {
         void itemSelected(Item item);
-
         void checkBoxSelected();
-
         void unCheckBoxSelected();
     }
 
@@ -108,7 +119,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
         itemViewHolder.id = items.get(position).getId();
         itemViewHolder.imageView.setImageBitmap(items.get(position).getImage());
         itemViewHolder.txtTittle.setText(items.get(position).getName());
-        itemViewHolder.checkBox.setChecked(items.get(position).isSelected());
+        
+        if(isPortrait()){
+            itemViewHolder.checkBox.setChecked(items.get(position).isSelected());
+        }
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -151,5 +165,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
 
     public ArrayList<Item> getItems() {
         return items;
+    }
+
+    private boolean isPortrait(){
+        return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 }
