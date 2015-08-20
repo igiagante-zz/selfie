@@ -25,7 +25,7 @@ public class DailySelfieReceiver extends BroadcastReceiver{
 
 
         Notification.Builder notificationBuilder = new Notification.Builder(context)
-                .setSmallIcon(R.drawable.camera_notification)
+                .setSmallIcon(R.drawable.camera)
                 .setAutoCancel(true)
                 .setContentTitle("Daily Selfie")
                 .setContentText("Time for another selfie")
