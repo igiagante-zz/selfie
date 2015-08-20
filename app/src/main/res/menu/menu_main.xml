@@ -5,7 +5,6 @@
 
     <item android:id="@+id/camera"
         android:icon="@drawable/camera"
-        android:title="@string/camera"
         android:orderInCategory="100"
         app:showAsAction="ifRoom" />
 
