@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import model.Item;
+
 /**
  * Created by igiagante on 18/8/15.
  */
@@ -32,7 +33,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
         public CardView cardView;
         public ImageView imageView;
         public TextView txtTittle;
-        public TextView txtDate;
         public CheckBox checkBox;
         public ImageView deleteButton;
 
@@ -51,7 +51,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
                     int position = getAdapterPosition();
                     Item item = items.get(position);
                     File file = new File(item.getPath());
-                    if(file.delete()){
+                    if (file.delete()) {
                         remove(position);
                     }
                 }
@@ -70,7 +70,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
                 public void onClick(View v) {
                     if (checkBox.isChecked()) {
                         onItemSelectedListener.checkBoxSelected();
-                    }else{
+                    } else {
                         onItemSelectedListener.unCheckBoxSelected();
                     }
                 }
@@ -80,7 +80,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
 
     public interface OnItemSelectedListener {
         void itemSelected(Item item);
+
         void checkBoxSelected();
+
         void unCheckBoxSelected();
     }
 
@@ -129,29 +131,21 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
         notifyDataSetChanged();
     }
 
-    public void removeAllItems(Set<Long> itemsId) {
+    public void removeAllItems(Set<Item> itemsId) {
 
-        ArrayList<Long> tempList = new ArrayList<>();
-        tempList.addAll(itemsId);
+        ArrayList<Item> tempList = new ArrayList<>(itemsId);
 
-        for(int i = 0; i < items.size(); i++){
-
-            for(int j = 0; j < tempList.size(); j++){
-
-                boolean check = items.get(i) != null
-                        && tempList.get(j) != null
-                        && items.get(i).getId().equals(tempList.get(j));
-
-                if(check){
-                    File file = new File(items.get(i).getPath());
-                    if(file.delete()){
-                        remove(i);
-                    }else{
-                        Log.e("Delete File", "File " + file.getPath() + "could not be deleted");
-                    }
+        for (int i = 0; i < tempList.size(); i++) {
+            if (tempList.contains(items.get(i))) {
+                File file = new File(items.get(i).getPath());
+                if (!file.delete()) {
+                    Log.e("Delete File", "File " + file.getPath() + "could not be deleted");
                 }
             }
         }
+
+        items.removeAll(itemsId);
+        notifyDataSetChanged();
     }
 
     public ArrayList<Item> getItems() {

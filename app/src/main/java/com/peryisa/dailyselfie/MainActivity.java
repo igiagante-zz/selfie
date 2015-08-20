@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -40,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     static final int width = 150;
 
     String mCurrentPhotoPath;
-    private HashSet<Long> itemsSelected = new HashSet<>();
+    private HashSet<Item> itemsSelected = new HashSet<>();
 
     private RecyclerView mRecyclerView;
     private MyAdapter mAdapter;
@@ -144,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
         }
 
         if(item.getItemId() == ITEM_ID_DELETE){
+            countOfNumberOfCheckboxSelected();
             mAdapter.removeAllItems(itemsSelected);
             removeDeleteIcon();
             return true;
@@ -222,11 +222,8 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     }
 
     private File createImageFile() throws IOException {
+
         // Create an image file name
-
-//        Random random = new Random();
-//        String imageFileName = new String (new char[random.nextInt(8)+3]);
-
         String timeStamp = new SimpleDateFormat("MMdd").format(new Date());
         String imageFileName = timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
@@ -297,14 +294,15 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
 
     private int countOfNumberOfCheckboxSelected(){
         int count = 0;
+        itemsSelected.clear();
         for(int i = 0; i < mRecyclerView.getChildCount(); i++){
             View view = mRecyclerView.getChildAt(i);
             CheckBox checkBox = (CheckBox)view.findViewById(R.id.select_picture);
             if(checkBox.isChecked()){
                 count++;
                 MyAdapter myAdapter = (MyAdapter) mRecyclerView.getAdapter();
-                Long itemId = myAdapter.getItems().get(i).getId();
-                itemsSelected.add(itemId);
+                Item item = myAdapter.getItems().get(i);
+                itemsSelected.add(item);
             }
         }
         return count;
