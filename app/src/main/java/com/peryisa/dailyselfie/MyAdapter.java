@@ -108,6 +108,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ItemViewHolder> {
         itemViewHolder.id = items.get(position).getId();
         itemViewHolder.imageView.setImageBitmap(items.get(position).getImage());
         itemViewHolder.txtTittle.setText(items.get(position).getName());
+        itemViewHolder.checkBox.setChecked(items.get(position).isSelected());
     }
 
     // Return the size of your dataset (invoked by the layout manager)

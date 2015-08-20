@@ -3,9 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
 
-
     <item android:id="@+id/camera"
-        android:icon="@drawable/camera"
+        android:icon="@drawable/camera_notification"
         android:title="@string/camera"
         android:orderInCategory="100"
         app:showAsAction="ifRoom" />
@@ -15,9 +14,5 @@
         android:title="@string/camera"
         android:orderInCategory="100"
         app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/action_settings"
-        android:title="@string/action_settings"/>
 
 </menu>

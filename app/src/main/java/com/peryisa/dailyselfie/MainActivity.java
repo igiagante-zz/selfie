@@ -138,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
             }else{
                 unSelectAll();
             }
-
             return true;
         }
 
@@ -164,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
     private void addDeleteIcon(){
         MenuItem deleteIcon = this.menu.add(0, ITEM_ID_DELETE, 0, "Delete");
         deleteIcon.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        deleteIcon.setIcon(R.drawable.delete);
+        deleteIcon.setIcon(R.drawable.trash);
     }
 
     private void removeDeleteIcon() {
@@ -248,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
             item.setPath(photoFile.getAbsolutePath());
             mAdapter.add(item);
         }else{
-            Log.e("Scaled Image", "An error has occured trying to create an thumbnail");
+            Log.e("Scaled Image", "An error has occurred trying to create an thumbnail");
         }
 
     }
@@ -275,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
                 item.setName(file.getName());
                 item.setImage(scaledImage);
                 item.setPath(file.getAbsolutePath());
+                item.setSelected(false);
                 mAdapter.add(item);
             }
         }
