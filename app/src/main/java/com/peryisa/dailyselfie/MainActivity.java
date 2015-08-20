@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.OnItemS
 
     private void createThumbNail(){
         File photoFile = new File(mCurrentPhotoPath);
-        if(photoFile != null){
+        if(photoFile.exists()){
             Item item = new Item();
             item.setId(new Random(31).nextLong());
             item.setName(photoFile.getName());
